@@ -11,6 +11,14 @@ var HaoAmap = {
         if (!inputObj.attr('haoamap-uuid'))
         {
             inputObj.attr('haoamap-uuid',Math.random());
+            if (inputObj.parent().width()<200)
+            {
+                inputObj.parent().width(200)
+            }
+            if (inputObj.parent().height()<inputObj.parent().width()*0.8)
+            {
+                inputObj.parent().height(inputObj.parent().width() * 0.8);
+            }
         }
         var uuid = inputObj.attr('haoamap-uuid');
         var map;
@@ -110,19 +118,45 @@ var HaoAmap = {
                 autoMove: true,
                 offset: {x: 0, y: -30}
             });
-        var infoObj = $('<div/>');
-        var addressObj = $('<input type="text" class="amap_address" value="" '+(isDisabled?'disabled':'')+'/>').appendTo(infoObj);
-        addressObj.keydown(function(){
+        var infoObj = $('<div></div>');
+        var addressObj = $('<input type="text" class="amap_address form-control" value="" '+(isDisabled?'disabled':'')+'/>').appendTo(infoObj);
+        addressObj.keyup(function(e){
+                var stroke, _ref;
+                stroke = (_ref = e.which) != null ? _ref : e.keyCode;
+                switch (stroke) {
+                    case 8:
+                    case 13:
+                    case 27:
+                    case 9:
+                    case 38:
+                    case 40:
+                    case 16:
+                    case 91:
+                    case 17:
+                    case 18:
+                        return true;
+                        break;
+                }
                 inputObj.val($(this).val());
-                var isFirstResult = true;
-                placeSearch.setPageIndex(1);
-                placeSearch.search($(this).val(),function (status,result){
-                    if (isFirstResult && status=='complete' && result.poiList.pois.length>0)
-                    {
-                        map.setZoomAndCenter(16,result.poiList.pois[0].location);
-                        isFirstResult = false;
-                    }
-                });
+                var searchText = $(this).val();
+                if (searchText!='')
+                {
+                    var _this = this;
+                    setTimeout(function(){
+                        if (searchText==$(_this).val())
+                        {
+                            var isFirstResult = true;
+                            placeSearch.setPageIndex(1);
+                            placeSearch.search(searchText,function (status,result){
+                                // if (isFirstResult && status=='complete' && result.poiList.pois.length>0)
+                                // {
+                                //     map.setZoomAndCenter(16,result.poiList.pois[0].location);
+                                //     isFirstResult = false;
+                                // }
+                            });
+                        }
+                    },300);
+                }
             });
         // var searchObj = $('<a href="javascript:;">查找周边</a>').appendTo(infoObj);
         // searchObj.click(function(){
@@ -131,7 +165,7 @@ var HaoAmap = {
         infoWindow.setContent(infoObj[0]);
         infoWindow.open(map, marker.getPosition());
         addressObj.val(inputObj.val());
-        inputObj.change(function(){addressObj.val($(this).val()).trigger('keydown');});
+        inputObj.change(function(){addressObj.val($(this).val()).trigger('keyup');});
 
         if (inputObj.attr('lng'))
         {
@@ -143,7 +177,7 @@ var HaoAmap = {
         }
         else
         {
-            addressObj.trigger('keydown');
+            addressObj.trigger('keyup');
         }
 
 
