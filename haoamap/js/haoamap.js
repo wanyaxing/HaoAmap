@@ -2,7 +2,6 @@ var HaoAmap = {
     amapList : {}
     ,init : function(target){
         inputObj = target.constructor == String ? $('#' + target) : $(target);
-        // console.log(inputObj);
         if (inputObj.length>1)
         {
             alert('注意，初始化时，只能接受唯一的dom对象');
@@ -10,7 +9,7 @@ var HaoAmap = {
         }
         if (!inputObj.attr('haoamap-uuid'))
         {
-            inputObj.attr('haoamap-uuid',Math.random());
+            inputObj.attr('haoamap-uuid',Math.random().toString(36).substr(2));
             if (inputObj.parent().width()<200)
             {
                 inputObj.parent().width(200)
@@ -33,6 +32,23 @@ var HaoAmap = {
             HaoAmap['amapList'][uuid] = map;
         }
         return map;
+    }
+    ,destroy:function(target){
+        targetObj = target.constructor == String ? $('#' + target) : $(target);
+        if (targetObj.length>1)
+        {
+            alert('注意，初始化时，只能接受唯一的dom对象');
+            return false;
+        }
+        var uuid = targetObj.attr('haoamap-uuid');
+        if (uuid && HaoAmap['amapList'][uuid])
+        {
+            var map = HaoAmap['amapList'][uuid];
+            map.destroy();
+            delete HaoAmap['amapList'][uuid];
+            return true;
+        }
+        return false;
     }
     ,initAmap: function (inputObj)
     {
@@ -179,8 +195,6 @@ var HaoAmap = {
         {
             addressObj.trigger('keyup');
         }
-
-
 
         return map;
     }
